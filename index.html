@@ -5,88 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>МУБИС - Оюутны Вэб</title>
     
-    <!-- 1. Tailwind CSS (Styling) -->
+    <!-- 1. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 2. React & ReactDOM (Version 17 - More stable for standalone files) -->
+    <!-- 2. React & ReactDOM (Version 17) -->
     <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
     
-    <!-- 3. Babel (Compiles JSX in browser) -->
+    <!-- 3. Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #1e3a8a;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        body { font-family: 'Roboto', sans-serif; background-color: #f3f4f6; }
+        /* Custom Scrollbar for Sidebar */
+        .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+        .sidebar-scroll::-webkit-scrollbar-track { background: #1e3a8a; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 2px; }
     </style>
 </head>
 <body>
     
-    <!-- Root Container -->
-    <div id="root">
-        <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #4b5563;">
-            <div class="loading-spinner"></div>
-            <p style="margin-top: 20px; font-weight: 500;">Систем ачаалж байна...</p>
-        </div>
-    </div>
+    <div id="root"></div>
 
-    <!-- Error Display Container (Hidden by default) -->
+    <!-- Error Handler -->
     <div id="error-container" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; padding: 40px;">
         <div style="max-width: 600px; margin: 0 auto; background: #fee2e2; padding: 20px; border-radius: 12px; border: 1px solid #ef4444; color: #991b1b;">
             <h2 style="font-weight: bold; margin-bottom: 10px;">Алдаа гарлаа</h2>
-            <p>Вэб хөтөч дээр кодыг унших үед алдаа гарлаа. (Console цонхыг шалгана уу)</p>
-            <pre id="error-message" style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 6px; margin-top: 10px; overflow-x: auto;"></pre>
+            <pre id="error-message"></pre>
         </div>
     </div>
 
-    <!-- Script to catch setup errors -->
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
             document.getElementById('error-container').style.display = 'block';
             document.getElementById('error-message').innerText = message + "\nLine: " + lineno;
-            console.error("Global Error:", error);
         };
     </script>
 
-    <!-- MAIN REACT APP SCRIPT -->
     <script type="text/babel">
 
-        // --- 1. ICON COMPONENTS (Manual SVG definitions to avoid dependency issues) ---
-        const User = (props) => (
-            <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        );
-        const BookOpen = (props) => (
-            <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        );
-        const Calendar = (props) => (
-            <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        );
-        const Clock = (props) => (
-            <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        );
-        const CheckCircle = (props) => (
-            <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        );
-        const AlertCircle = (props) => (
-            <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        );
-        const GraduationCap = (props) => (
-            <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-        );
+        // --- ICONS ---
+        const IconUser = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+        const IconBook = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>;
+        const IconCalendar = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+        const IconHome = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        const IconFileText = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>;
+        const IconCreditCard = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>;
+        const IconSettings = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
+        const IconMenu = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
+        const IconLogOut = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
+        const IconX = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+        const IconDownload = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        const IconTrendingUp = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
+        const IconAward = (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>;
 
-        // --- 2. MAIN APPLICATION ---
         const { useState, useEffect } = React;
 
         const App = () => {
+            // --- STATE & DATA ---
             const studentInfo = {
                 name: "Очирбат Болормаа",
                 id: "E.2105892",
@@ -94,9 +71,12 @@
                 major: "Багш, Биеийн тамир",
                 year: 3,
                 gpa: 3.4,
-                maxCredits: 21
+                maxCredits: 21,
+                attendance: 92,
+                balance: 0
             };
 
+            // Courses for Selection
             const allCourses = [
                 { id: 1, code: 'EDU203', name: 'Сурган хүмүүжүүлэх зүй', credits: 3, teacher: 'Док. Б.Ариунаа', time: 'Даваа 09:40 - 11:10', room: 'А-304', type: 'Заавал' },
                 { id: 2, code: 'PSY201', name: 'Хүүхдийн сэтгэл судлал', credits: 3, teacher: 'Маг. Г.Батболд', time: 'Мягмар 14:00 - 15:30', room: 'Б-201', type: 'Заавал' },
@@ -107,20 +87,67 @@
                 { id: 7, code: 'PE302', name: 'Хөнгөн атлетик', credits: 2, teacher: 'Д.Тэмүүлэн', time: 'Баасан 08:00 - 09:30', room: 'Стадион', type: 'Мэргэшүүлэх' },
             ];
 
+            // Mock Grades Data
+            const gradesData = [
+                { id: 101, year: '2024-2025', term: 'Намар', code: 'EDU201', name: 'Боловсрол судлал', credits: 3, score: 94, grade: 'A', gpa: 4.0 },
+                { id: 102, year: '2024-2025', term: 'Намар', code: 'PSY201', name: 'Сэтгэл судлал', credits: 3, score: 88, grade: 'B+', gpa: 3.7 },
+                { id: 103, year: '2024-2025', term: 'Намар', code: 'PE101', name: 'Биеийн тамирын удиртгал', credits: 2, score: 96, grade: 'A', gpa: 4.0 },
+                { id: 104, year: '2023-2024', term: 'Хавар', code: 'ENG101', name: 'Академик Англи хэл I', credits: 3, score: 82, grade: 'B', gpa: 3.0 },
+                { id: 105, year: '2023-2024', term: 'Хавар', code: 'MTH101', name: 'Математик I', credits: 3, score: 79, grade: 'C+', gpa: 2.3 },
+            ];
+
+            // Mock Reference Types
+            const referenceTypes = [
+                { id: 1, name: 'Оюутны тодорхойлолт (Монгол)', price: 1000, type: 'pdf' },
+                { id: 2, name: 'Оюутны тодорхойлолт (Англи)', price: 2000, type: 'pdf' },
+                { id: 3, name: 'Дүнгийн хуулбар (Албан ёсны)', price: 3000, type: 'print' },
+                { id: 4, name: 'Төлбөрийн нэхэмжлэх', price: 0, type: 'pdf' },
+            ];
+
+            // Mock Payment History
+            const paymentHistory = [
+                { id: 1, date: '2025-01-20', desc: 'Сургалтын төлбөр (Хавар)', amount: -1500000, status: 'Нэхэмжилсэн' },
+                { id: 2, date: '2025-01-25', desc: 'Голомт банк - Интернет', amount: 1500000, status: 'Төлөгдсөн' },
+                { id: 3, date: '2024-09-01', desc: 'Сургалтын төлбөр (Намар)', amount: -1500000, status: 'Нэхэмжилсэн' },
+                { id: 4, date: '2024-09-05', desc: 'Хаан банк - Мобайл', amount: 1500000, status: 'Төлөгдсөн' },
+            ];
+
+            // Mock Scholarships
+            const scholarships = [
+                { id: 1, name: "Ерөнхийлөгчийн нэрэмжит тэтгэлэг", type: "Бүрэн тэтгэлэг", amount: "100%", status: "available", deadline: "2025-03-01", desc: "Сурлагын голч дүн 3.6 болон түүнээс дээш байх." },
+                { id: 2, name: "Сурлагын амжилтын тэтгэлэг", type: "Хэсэгчилсэн", amount: "50%", status: "pending", deadline: "2025-02-25", desc: "Улирлын голч дүн 3.2-оос дээш, нийгмийн идэвхтэй оюутанд." },
+                { id: 3, name: "Зорилтот бүлгийн тэтгэлэг", type: "Хэсэгчилсэн", amount: "30%", status: "expired", deadline: "2025-01-15", desc: "Амьжиргааны түвшин доогуур өрхийн оюутанд." }
+            ];
+
             const [selectedCourses, setSelectedCourses] = useState([]);
             const [totalCredits, setTotalCredits] = useState(0);
             const [showConfirmModal, setShowConfirmModal] = useState(false);
             const [notification, setNotification] = useState(null);
-            const [activeTab, setActiveTab] = useState('selection');
+            const [activePage, setActivePage] = useState('home'); 
+            const [activePaymentTab, setActivePaymentTab] = useState('history'); // 'history' or 'scholarship'
+            const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 1024);
+
+            // Responsive Sidebar State
+            useEffect(() => {
+                const handleResize = () => {
+                    if (window.innerWidth >= 1024) {
+                        setIsSidebarOpen(true);
+                    } else {
+                        setIsSidebarOpen(false);
+                    }
+                };
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
 
             useEffect(() => {
                 const total = selectedCourses.reduce((sum, course) => sum + course.credits, 0);
                 setTotalCredits(total);
             }, [selectedCourses]);
 
+            // --- HANDLERS ---
             const toggleCourse = (course) => {
                 const isSelected = selectedCourses.find(c => c.id === course.id);
-
                 if (isSelected) {
                     setSelectedCourses(selectedCourses.filter(c => c.id !== course.id));
                 } else {
@@ -145,227 +172,603 @@
             const handleConfirm = () => {
                 setShowConfirmModal(false);
                 showNotification('Хичээл сонголт амжилттай хадгалагдлаа!', 'success');
-                setActiveTab('schedule');
+                setActivePage('schedule');
             };
 
-            // Image Error Handler inside Component
-            const handleImageError = (e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
+            const handleRequestReference = (refName) => {
+                showNotification(`"${refName}" хүсэлт амжилттай илгээгдлээ.`, 'success');
             };
 
-            return (
-                <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
-                {/* Header */}
-                <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 px-4 shadow-sm">
-                    <div className="max-w-7xl mx-auto h-20 flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                        <img 
-                            src="https://msue.edu.mn/images/news/c0928b01-68f2-4b5c-92a2-0bdfbbce91ab.png" 
-                            alt="MSUE Logo" 
-                            className="h-14 w-auto object-contain"
-                            onError={handleImageError}
-                        />
-                        <div className="flex flex-col" style={{display: 'none'}}> {/* Fallback is hidden by default */}
-                            <span className="font-bold text-blue-900 text-lg leading-tight uppercase tracking-tight">МУБИС</span>
-                            <span className="text-[10px] text-gray-500 font-medium tracking-widest">MSUE</span>
-                        </div>
-                        {/* Always visible text for Desktop */}
-                        <div className="hidden sm:flex flex-col ml-2">
-                            <span className="font-bold text-blue-900 text-lg leading-tight uppercase tracking-tight">Монгол Улсын Боловсролын Их Сургууль</span>
-                            <span className="text-[10px] text-gray-500 font-medium tracking-widest">MONGOLIAN STATE UNIVERSITY OF EDUCATION</span>
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <div className="hidden md:block text-right">
-                        <p className="text-sm font-bold text-gray-900">{studentInfo.name}</p>
-                        <p className="text-xs text-blue-600 font-medium uppercase">{studentInfo.id}</p>
-                        </div>
-                        <div className="h-10 w-10 bg-blue-50 rounded-full flex items-center justify-center border border-blue-100">
-                        <User className="h-5 w-5 text-blue-600" />
-                        </div>
-                    </div>
-                    </div>
-                </nav>
+            const handleSaveSettings = (e) => {
+                e.preventDefault();
+                showNotification('Мэдээлэл амжилттай шинэчлэгдлээ.', 'success');
+            };
 
-                <main className="max-w-7xl mx-auto px-4 py-8">
-                    {/* Profile Card */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="flex items-center space-x-4">
-                        <div className="p-3 bg-blue-50 rounded-xl"><User className="h-6 w-6 text-blue-600" /></div>
-                        <div><p className="text-[10px] text-gray-400 font-bold uppercase">Оюутан</p><p className="font-bold text-sm">{studentInfo.name}</p></div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                        <div className="p-3 bg-green-50 rounded-xl"><BookOpen className="h-6 w-6 text-green-600" /></div>
-                        <div><p className="text-[10px] text-gray-400 font-bold uppercase">Мэргэжил</p><p className="font-bold text-sm">{studentInfo.major}</p></div>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                        <div className="p-3 bg-orange-50 rounded-xl"><GraduationCap className="h-6 w-6 text-orange-600" /></div>
-                        <div><p className="text-[10px] text-gray-400 font-bold uppercase">GPA</p><p className="font-bold text-sm">{studentInfo.gpa}</p></div>
-                        </div>
-                        <div className="flex items-center space-x-4 border-l pl-6 border-gray-100">
-                        <div>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase">Сонгосон кредит</p>
-                            <div className="flex items-baseline space-x-1">
-                            <span className={`text-3xl font-black ${totalCredits > studentInfo.maxCredits ? 'text-red-600' : 'text-blue-900'}`}>{totalCredits}</span>
-                            <span className="text-gray-400 font-bold text-sm">/ {studentInfo.maxCredits}</span>
+            const handleApplyScholarship = (name) => {
+                showNotification(`"${name}"-д хүсэлт илгээлээ. Хариуг и-мэйлээр мэдэгдэнэ.`, 'success');
+            };
+
+            // --- COMPONENTS ---
+            const SidebarItem = ({ icon: Icon, label, id, active }) => (
+                <button 
+                    onClick={() => {
+                        setActivePage(id);
+                        if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 text-sm font-medium transition-colors ${active ? 'bg-blue-800 text-white border-r-4 border-yellow-400' : 'text-blue-100 hover:bg-blue-800/50 hover:text-white'}`}
+                >
+                    <Icon className="w-5 h-5 opacity-80" />
+                    <span>{label}</span>
+                </button>
+            );
+
+            // --- PAGE RENDERERS ---
+
+            // 1. HOME PAGE
+            const renderHome = () => (
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p className="text-gray-500 text-xs uppercase font-bold">Голч дүн (GPA)</p>
+                                <p className="text-2xl font-bold text-blue-900">{studentInfo.gpa}</p>
                             </div>
+                            <div className="bg-blue-50 p-2 rounded-full"><IconTrendingUp className="w-6 h-6 text-blue-600" /></div>
                         </div>
+                        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p className="text-gray-500 text-xs uppercase font-bold">Нийт Кредит</p>
+                                <p className="text-2xl font-bold text-green-600">{studentInfo.year * 30}</p>
+                            </div>
+                            <div className="bg-green-50 p-2 rounded-full"><IconBook className="w-6 h-6 text-green-600" /></div>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p className="text-gray-500 text-xs uppercase font-bold">Ирц</p>
+                                <p className="text-2xl font-bold text-orange-500">{studentInfo.attendance}%</p>
+                            </div>
+                            <div className="bg-orange-50 p-2 rounded-full"><IconCalendar className="w-6 h-6 text-orange-500" /></div>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p className="text-gray-500 text-xs uppercase font-bold">Төлбөр</p>
+                                <p className="text-2xl font-bold text-gray-700">{studentInfo.balance}₮</p>
+                            </div>
+                            <div className="bg-gray-50 p-2 rounded-full"><IconCreditCard className="w-6 h-6 text-gray-500" /></div>
                         </div>
                     </div>
-                    </div>
 
-                    {/* Navigation Tabs */}
-                    <div className="flex space-x-2 mb-8 bg-gray-200/50 p-1 rounded-xl w-fit">
-                    <button 
-                        onClick={() => setActiveTab('selection')} 
-                        className={`py-2 px-6 rounded-lg font-bold text-sm transition-all ${activeTab === 'selection' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                    >
-                        Хичээл сонголт
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('schedule')} 
-                        className={`py-2 px-6 rounded-lg font-bold text-sm transition-all ${activeTab === 'schedule' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                    >
-                        Миний хуваарь
-                    </button>
-                    </div>
-
-                    {activeTab === 'selection' ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="lg:col-span-2">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                            <table className="min-w-full divide-y divide-gray-100">
-                            <thead className="bg-gray-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                <tr>
-                                <th className="px-6 py-4 text-left">Хичээлийн нэр</th>
-                                <th className="px-6 py-4 text-left">Цаг & Танхим</th>
-                                <th className="px-6 py-4 text-left">Кр</th>
-                                <th className="px-6 py-4 text-right">Үйлдэл</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {allCourses.map((course) => {
-                                const isSelected = selectedCourses.find(c => c.id === course.id);
-                                return (
-                                    <tr key={course.id} className={`${isSelected ? 'bg-blue-50/30' : ''}`}>
-                                    <td className="px-6 py-4">
-                                        <p className="text-[10px] font-black text-blue-600 uppercase mb-0.5">{course.code}</p>
-                                        <p className="text-sm font-bold text-gray-900">{course.name}</p>
-                                        <p className="text-xs text-gray-400">{course.teacher}</p>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <p className="text-xs text-gray-600 flex items-center mb-1"><Clock className="w-3 h-3 mr-1 opacity-40" /> {course.time}</p>
-                                        <p className="text-xs text-gray-500">Танхим: {course.room}</p>
-                                    </td>
-                                    <td className="px-6 py-4 font-bold text-gray-700 text-sm">{course.credits}</td>
-                                    <td className="px-6 py-4 text-right">
-                                        <button 
-                                        onClick={() => toggleCourse(course)} 
-                                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${isSelected ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-blue-900 text-white shadow-md shadow-blue-900/10 hover:bg-blue-800'}`}
-                                        >
-                                        {isSelected ? 'Хасах' : 'Сонгох'}
-                                        </button>
-                                    </td>
-                                    </tr>
-                                );
-                                })}
-                            </tbody>
-                            </table>
-                        </div>
-                        </div>
-
-                        <div className="lg:col-span-1">
-                        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sticky top-28">
-                            <h3 className="font-black text-lg text-blue-900 mb-4">Сонгосон багц</h3>
-                            {selectedCourses.length === 0 ? (
-                            <p className="text-sm text-gray-400 text-center py-10 italic">Хичээл сонгоогүй байна.</p>
-                            ) : (
-                            <ul className="space-y-3 mb-8">
-                                {selectedCourses.map(course => (
-                                <li key={course.id} className="flex justify-between items-center text-sm border-b border-gray-50 pb-2 last:border-0">
-                                    <span className="font-medium text-gray-700">{course.name}</span>
-                                    <span className="font-black text-blue-600">{course.credits} кр</span>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
+                            <h3 className="font-bold text-gray-800 mb-4 flex items-center"><IconFileText className="w-4 h-4 mr-2 text-blue-600"/> Зарлалын самбар</h3>
+                            <ul className="space-y-4">
+                                <li className="pb-3 border-b border-gray-100 last:border-0">
+                                    <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded">2025-01-25</span>
+                                    <p className="text-sm font-medium mt-1 text-gray-800">Хаврын улирлын хичээл сонголт эхэллээ</p>
+                                    <p className="text-xs text-gray-500 mt-0.5">2-р сарын 1-ний дотор сонголтоо баталгаажуулна уу.</p>
                                 </li>
-                                ))}
+                                <li className="pb-3 border-b border-gray-100 last:border-0">
+                                    <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded">2025-01-20</span>
+                                    <p className="text-sm font-medium mt-1 text-gray-800">Тэтгэлэгт хөтөлбөрийн бүртгэл</p>
+                                    <p className="text-xs text-gray-500 mt-0.5">Ерөнхийлөгчийн тэтгэлэгт хамрагдах хүсэлтийг хүлээн авч байна.</p>
+                                </li>
                             </ul>
-                            )}
-                            <div className="border-t pt-4 mb-6 flex justify-between items-end">
-                            <span className="text-[10px] font-bold text-gray-400 uppercase">Нийт Кредит</span>
-                            <span className="text-3xl font-black text-blue-900">{totalCredits}</span>
-                            </div>
-                            <button 
-                            onClick={() => setShowConfirmModal(true)}
-                            disabled={selectedCourses.length === 0}
-                            className={`w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${selectedCourses.length === 0 ? 'bg-gray-100 text-gray-300' : 'bg-green-600 text-white shadow-lg shadow-green-600/20 hover:bg-green-700'}`}
-                            >
-                            Батлах & Хадгалах
-                            </button>
                         </div>
+                         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
+                            <h3 className="font-bold text-gray-800 mb-4 flex items-center"><IconCalendar className="w-4 h-4 mr-2 text-blue-600"/> Өнөөдрийн хуваарь</h3>
+                            <div className="text-center py-8 text-gray-400 text-sm italic bg-gray-50 rounded border border-dashed border-gray-200">
+                                Өнөөдөр хичээлгүй байна.
+                            </div>
                         </div>
                     </div>
-                    ) : (
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                        <h2 className="text-xl font-black mb-8 flex items-center text-blue-900"><Calendar className="w-6 h-6 mr-3" /> Хичээлийн хуваарь</h2>
-                        {selectedCourses.length === 0 ? (
-                        <div className="text-center py-20 text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100 italic">Сонгосон хичээл байхгүй байна.</div>
-                        ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                            {selectedCourses.map(course => (
-                            <div key={course.id} className="border-2 border-gray-50 rounded-2xl p-6 hover:border-blue-100 transition-all">
-                                <span className="text-[10px] font-black text-white bg-blue-900 px-2 py-1 rounded-md mb-4 inline-block">{course.code}</span>
-                                <h3 className="font-black text-gray-900 text-base mb-4 leading-tight">{course.name}</h3>
-                                <div className="space-y-2">
-                                <p className="text-[11px] font-bold text-gray-500 flex items-center"><User className="w-3.5 h-3.5 mr-2 text-blue-500" /> {course.teacher}</p>
-                                <p className="text-[11px] font-bold text-gray-500 flex items-center"><Clock className="w-3.5 h-3.5 mr-2 text-blue-500" /> {course.time}</p>
-                                <div className="text-[11px] font-bold text-gray-500 flex items-center">
-                                    <span className="w-3.5 h-3.5 mr-2 bg-blue-500 text-white flex items-center justify-center text-[8px] rounded-sm font-black">R</span> 
-                                    {course.room}
-                                </div>
-                                </div>
+                </div>
+            );
+
+            // 2. SELECTION PAGE (Original Logic)
+            const renderSelection = () => (
+                 <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                    {/* Main Table */}
+                    <div className="xl:col-span-3">
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-300 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                                <h3 className="font-bold text-gray-700 text-sm uppercase">Санал болгож буй хичээлүүд</h3>
+                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">Идэвхтэй</span>
                             </div>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-100">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-r border-gray-200">Код</th>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-r border-gray-200">Хичээлийн нэр</th>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border-r border-gray-200">Багш</th>
+                                            <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-r border-gray-200">Цаг</th>
+                                            <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider border-r border-gray-200">Кр</th>
+                                            <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Сонгох</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {allCourses.map((course, idx) => {
+                                            const isSelected = selectedCourses.find(c => c.id === course.id);
+                                            return (
+                                                <tr key={course.id} className={`hover:bg-blue-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                                                    <td className="px-6 py-3 whitespace-nowrap text-sm font-bold text-blue-700 border-r border-gray-100">{course.code}</td>
+                                                    <td className="px-6 py-3 text-sm text-gray-900 font-medium border-r border-gray-100">
+                                                        {course.name}
+                                                        <span className="block text-[10px] text-gray-400 mt-0.5">{course.type}</span>
+                                                    </td>
+                                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100">{course.teacher}</td>
+                                                    <td className="px-6 py-3 whitespace-nowrap text-xs text-gray-500 border-r border-gray-100">
+                                                        <div className="flex flex-col items-center">
+                                                            <span>{course.time}</span>
+                                                            <span className="text-[10px] bg-gray-100 px-1 rounded mt-1 border">{course.room}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-900 font-bold text-center border-r border-gray-100">{course.credits}</td>
+                                                    <td className="px-6 py-3 whitespace-nowrap text-center">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={!!isSelected}
+                                                            onChange={() => toggleCourse(course)}
+                                                            className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sidebar Summary Widget */}
+                    <div className="xl:col-span-1">
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-300 sticky top-6">
+                            <div className="px-4 py-3 bg-[#002147] text-white rounded-t-lg">
+                                <h3 className="font-bold text-sm">Сонгосон хичээлүүд</h3>
+                            </div>
+                            <div className="p-4">
+                                {selectedCourses.length === 0 ? (
+                                    <p className="text-sm text-gray-400 italic text-center py-4">Хичээл сонгоогүй байна.</p>
+                                ) : (
+                                    <ul className="space-y-2 mb-6">
+                                        {selectedCourses.map(course => (
+                                            <li key={course.id} className="text-xs flex justify-between items-center border-b border-gray-100 pb-2">
+                                                <span className="text-gray-700 font-medium truncate w-32">{course.name}</span>
+                                                <span className="font-bold text-blue-600">{course.credits} кр</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                                
+                                <div className="bg-gray-50 p-3 rounded mb-4 border border-gray-200">
+                                    <div className="flex justify-between text-sm font-bold">
+                                        <span className="text-gray-600">Нийт кредит:</span>
+                                        <span className="text-blue-900">{totalCredits}</span>
+                                    </div>
+                                </div>
+
+                                <button 
+                                    onClick={() => setShowConfirmModal(true)}
+                                    disabled={selectedCourses.length === 0}
+                                    className={`w-full py-2.5 rounded font-bold text-sm shadow-sm transition-all ${selectedCourses.length === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-yellow-500 text-blue-900 hover:bg-yellow-400'}`}
+                                >
+                                    Батлах
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // 3. SCHEDULE PAGE
+            const renderSchedule = () => (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-300 p-6 min-h-[400px]">
+                    <div className="flex items-center space-x-2 mb-6 pb-4 border-b border-gray-100">
+                        <IconCalendar className="text-blue-600 w-6 h-6" />
+                        <h2 className="text-lg font-bold text-gray-800">7 хоногийн хуваарь</h2>
+                    </div>
+                    
+                    {selectedCourses.length === 0 ? (
+                        <div className="text-center py-20 bg-gray-50 rounded border border-dashed border-gray-300">
+                            <p className="text-gray-500">Хичээл сонголт хийгдээгүй байна.</p>
+                            <button onClick={() => setActivePage('selection')} className="mt-4 text-blue-600 font-bold hover:underline">Хичээл сонгох руу очих</button>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {selectedCourses.map(course => (
+                                <div key={course.id} className="bg-white border-l-4 border-blue-600 shadow-sm rounded-r p-4 border border-gray-200">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className="text-xs font-bold bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100">{course.code}</span>
+                                        <span className="text-xs font-bold text-gray-400">{course.room}</span>
+                                    </div>
+                                    <h4 className="font-bold text-gray-800 text-sm mb-1">{course.name}</h4>
+                                    <p className="text-xs text-gray-500 mb-2">{course.teacher}</p>
+                                    <div className="pt-2 border-t border-gray-100 flex items-center text-xs text-blue-600 font-medium">
+                                        <IconCalendar className="w-3 h-3 mr-1" />
+                                        {course.time}
+                                    </div>
+                                </div>
                             ))}
                         </div>
-                        )}
-                    </div>
                     )}
-                </main>
+                </div>
+            );
 
-                {/* Confirmation Modal */}
-                {showConfirmModal && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-blue-900/10 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-gray-50 text-center">
-                        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle className="h-8 w-8 text-green-500" />
-                        </div>
-                        <h3 className="text-xl font-black mb-2 text-gray-900">Баталгаажуулах</h3>
-                        <p className="text-gray-500 text-sm mb-8">Та нийт {totalCredits} кредитийн хичээл сонгохдоо итгэлтэй байна уу?</p>
-                        <div className="space-y-3">
-                        <button onClick={handleConfirm} className="w-full py-4 bg-blue-900 text-white font-black rounded-xl shadow-lg shadow-blue-900/10 hover:bg-blue-800 transition-all">ТИЙМ, БАТЛАХ</button>
-                        <button onClick={() => setShowConfirmModal(false)} className="w-full py-2 text-gray-400 font-bold hover:text-gray-600">БОЛИХ</button>
-                        </div>
+            // 4. GRADES PAGE
+            const renderGrades = () => (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-300 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h3 className="font-bold text-gray-800 text-sm">Дүнгийн жагсаалт</h3>
                     </div>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-100">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Хичээлийн жил</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Улирал</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Код</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Нэр</th>
+                                    <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Кредит</th>
+                                    <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Оноо</th>
+                                    <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Үсгэн дүн</th>
+                                    <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">GPA</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {gradesData.map((grade) => (
+                                    <tr key={grade.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 text-xs font-medium text-gray-500">{grade.year}</td>
+                                        <td className="px-6 py-4 text-xs text-gray-500">{grade.term}</td>
+                                        <td className="px-6 py-4 text-xs font-bold text-blue-600">{grade.code}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-800 font-medium">{grade.name}</td>
+                                        <td className="px-6 py-4 text-sm text-center text-gray-600">{grade.credits}</td>
+                                        <td className="px-6 py-4 text-sm text-center font-bold text-gray-800">{grade.score}</td>
+                                        <td className="px-6 py-4 text-center">
+                                            <span className={`px-2 py-1 text-xs font-bold rounded ${grade.grade.startsWith('A') ? 'bg-green-100 text-green-700' : grade.grade.startsWith('B') ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                                {grade.grade}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-center font-bold text-gray-800">{grade.gpa}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                )}
+                </div>
+            );
 
-                {/* Toast Notification */}
-                {notification && (
-                    <div className={`fixed bottom-8 right-8 px-8 py-4 rounded-2xl shadow-2xl text-white font-bold z-[110] flex items-center transform animate-in slide-in-from-bottom duration-300 ${notification.type === 'error' ? 'bg-red-500' : 'bg-blue-900'}`}>
-                    {notification.type === 'error' ? <AlertCircle className="w-5 h-5 mr-3" /> : <CheckCircle className="w-5 h-5 mr-3" />}
-                    {notification.message}
+            // 5. REFERENCES PAGE
+            const renderReferences = () => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {referenceTypes.map((ref) => (
+                        <div key={ref.id} className="bg-white rounded-lg border border-gray-300 shadow-sm p-5 hover:border-blue-400 transition-colors">
+                            <div className="bg-blue-50 w-10 h-10 rounded-lg flex items-center justify-center mb-4">
+                                <IconDownload className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <h4 className="font-bold text-gray-800 mb-1">{ref.name}</h4>
+                            <p className="text-xs text-gray-500 mb-4">Төлбөр: {ref.price > 0 ? `${ref.price}₮` : 'Үнэгүй'}</p>
+                            <button 
+                                onClick={() => handleRequestReference(ref.name)}
+                                className="w-full py-2 bg-blue-900 text-white rounded text-xs font-bold hover:bg-blue-800"
+                            >
+                                ЗАХИАЛАХ
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            );
+
+            // 6. PAYMENT PAGE (Updated with Scholarships)
+            const renderPayment = () => (
+                <div className="space-y-6">
+                    {/* Payment Header & Balance */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-300 p-6">
+                        <div className="flex flex-col md:flex-row justify-between md:items-center">
+                            <div>
+                                <h3 className="text-sm font-bold text-gray-500 uppercase mb-2">Төлбөрийн үлдэгдэл</h3>
+                                <div className="flex items-baseline space-x-2">
+                                    <span className="text-3xl font-black text-gray-800">{studentInfo.balance.toLocaleString()}₮</span>
+                                    <span className="text-sm text-green-600 font-medium">(Төлөгдсөн)</span>
+                                </div>
+                            </div>
+                            <div className="mt-4 md:mt-0 flex space-x-2">
+                                <button 
+                                    onClick={() => setActivePaymentTab('history')}
+                                    className={`px-4 py-2 rounded text-sm font-bold transition-colors ${activePaymentTab === 'history' ? 'bg-blue-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                >
+                                    Төлбөрийн түүх
+                                </button>
+                                <button 
+                                    onClick={() => setActivePaymentTab('scholarship')}
+                                    className={`px-4 py-2 rounded text-sm font-bold transition-colors ${activePaymentTab === 'scholarship' ? 'bg-blue-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                >
+                                    Тэтгэлэг
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                )}
+
+                    {/* Conditional Content based on Tab */}
+                    {activePaymentTab === 'history' ? (
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-300 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                                <h3 className="font-bold text-gray-800 text-sm">Гүйлгээний түүх</h3>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-100">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Огноо</th>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Гүйлгээний утга</th>
+                                            <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase">Дүн</th>
+                                            <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Төлөв</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {paymentHistory.map((item) => (
+                                            <tr key={item.id} className="hover:bg-gray-50">
+                                                <td className="px-6 py-4 text-xs text-gray-500">{item.date}</td>
+                                                <td className="px-6 py-4 text-sm font-medium text-gray-800">{item.desc}</td>
+                                                <td className={`px-6 py-4 text-sm font-bold text-right ${item.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {item.amount > 0 ? '+' : ''}{item.amount.toLocaleString()}₮
+                                                </td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <span className={`px-2 py-1 text-[10px] font-bold uppercase rounded ${item.amount > 0 ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-600'}`}>
+                                                        {item.status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {scholarships.map((sch) => (
+                                <div key={sch.id} className="bg-white rounded-lg shadow-sm border border-gray-300 p-5 flex flex-col md:flex-row justify-between items-start md:items-center">
+                                    <div className="mb-4 md:mb-0">
+                                        <div className="flex items-center space-x-2 mb-1">
+                                            <h4 className="font-bold text-gray-800">{sch.name}</h4>
+                                            {sch.status === 'available' && <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Нээлттэй</span>}
+                                            {sch.status === 'pending' && <span className="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Шалгагдаж байна</span>}
+                                            {sch.status === 'expired' && <span className="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Хаагдсан</span>}
+                                        </div>
+                                        <p className="text-sm text-gray-600 mb-2">{sch.desc}</p>
+                                        <div className="flex space-x-4 text-xs text-gray-500">
+                                            <span className="flex items-center"><IconAward className="w-3 h-3 mr-1 text-blue-500" /> Төрөл: {sch.type} ({sch.amount})</span>
+                                            <span className="flex items-center"><IconCalendar className="w-3 h-3 mr-1 text-blue-500" /> Хугацаа: {sch.deadline}</span>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleApplyScholarship(sch.name)}
+                                        disabled={sch.status !== 'available'}
+                                        className={`px-6 py-2 rounded text-xs font-bold uppercase transition-all ${
+                                            sch.status === 'available' 
+                                            ? 'bg-blue-900 text-white hover:bg-blue-800 shadow-sm' 
+                                            : sch.status === 'pending'
+                                            ? 'bg-yellow-100 text-yellow-700 cursor-not-allowed border border-yellow-200'
+                                            : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                        }`}
+                                    >
+                                        {sch.status === 'available' ? 'Хүсэлт илгээх' : sch.status === 'pending' ? 'Илгээсэн' : 'Хугацаа дууссан'}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+
+            // 7. SETTINGS PAGE
+            const renderSettings = () => (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-300 p-6 max-w-2xl">
+                    <h3 className="font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100">Хувийн мэдээлэл шинэчлэх</h3>
+                    <form onSubmit={handleSaveSettings} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 mb-1">Утасны дугаар</label>
+                                <input type="text" defaultValue="99110000" className="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 mb-1">И-мэйл хаяг</label>
+                                <input type="email" defaultValue="student@msue.edu.mn" className="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                            </div>
+                        </div>
+                        <div className="pt-4 mt-4 border-t border-gray-100">
+                            <h4 className="font-bold text-gray-800 text-sm mb-4">Нууц үг солих</h4>
+                            <div className="space-y-3">
+                                <input type="password" placeholder="Хуучин нууц үг" className="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                                <input type="password" placeholder="Шинэ нууц үг" className="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                                <input type="password" placeholder="Шинэ нууц үг давтах" className="w-full p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                            </div>
+                        </div>
+                        <div className="pt-4 flex justify-end">
+                            <button type="submit" className="px-6 py-2 bg-green-600 text-white rounded font-bold text-sm hover:bg-green-700 shadow-sm">
+                                Хадгалах
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            );
+
+
+            // --- MAIN RENDER ---
+            return (
+                <div className="flex h-screen bg-gray-100 font-sans overflow-hidden">
+                    
+                    {/* BACKDROP for Mobile Sidebar */}
+                    {isSidebarOpen && (
+                        <div 
+                            className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+                            onClick={() => setIsSidebarOpen(false)}
+                        ></div>
+                    )}
+
+                    {/* Sidebar */}
+                    <aside className={`bg-[#002147] flex-shrink-0 transition-all duration-300 flex flex-col ${isSidebarOpen ? 'w-64 translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0'} fixed lg:relative h-full z-30 shadow-xl lg:transform-none`}>
+                        {/* Sidebar Header */}
+                        <div className="h-16 flex items-center justify-between px-4 bg-[#001a38] border-b border-blue-900">
+                            <div className="flex items-center overflow-hidden">
+                                <img 
+                                    src="https://msue.edu.mn/images/news/c0928b01-68f2-4b5c-92a2-0bdfbbce91ab.png" 
+                                    alt="Logo" 
+                                    className="h-8 w-auto mr-3 bg-white rounded p-0.5"
+                                    onError={(e) => { e.target.style.display='none'; }}
+                                />
+                                <div className="whitespace-nowrap">
+                                    <h1 className="text-white font-bold text-lg leading-none">Оюутны Вэб</h1>
+                                    <span className="text-blue-300 text-[10px] tracking-widest uppercase">MSUE System</span>
+                                </div>
+                            </div>
+                            <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-gray-400 hover:text-white focus:outline-none">
+                                <IconX className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Profile Summary */}
+                        <div className="p-4 bg-blue-900/50 border-b border-blue-800">
+                            <div className="flex items-center space-x-3">
+                                <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-blue-900 font-bold border-2 border-yellow-400 shrink-0">
+                                    {studentInfo.name.charAt(0)}
+                                </div>
+                                <div className="overflow-hidden">
+                                    <p className="text-white text-sm font-bold truncate">{studentInfo.name}</p>
+                                    <p className="text-blue-300 text-xs truncate">{studentInfo.id}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Navigation */}
+                        <nav className="flex-1 overflow-y-auto sidebar-scroll py-4">
+                            <SidebarItem icon={IconHome} label="Нүүр хуудас" id="home" active={activePage === 'home'} />
+                            <div className="px-4 py-2 text-xs font-bold text-blue-400 uppercase tracking-wider mt-2">Сургалт</div>
+                            <SidebarItem icon={IconBook} label="Хичээл сонголт" id="selection" active={activePage === 'selection'} />
+                            <SidebarItem icon={IconCalendar} label="Миний хуваарь" id="schedule" active={activePage === 'schedule'} />
+                            <SidebarItem icon={IconFileText} label="Дүнгийн мэдээлэл" id="grades" active={activePage === 'grades'} />
+                            <SidebarItem icon={IconDownload} label="Тодорхойлолт" id="ref" active={activePage === 'ref'} />
+                            <div className="px-4 py-2 text-xs font-bold text-blue-400 uppercase tracking-wider mt-2">Бусад</div>
+                            <SidebarItem icon={IconCreditCard} label="Төлбөрийн мэдээлэл" id="payment" active={activePage === 'payment'} />
+                            <SidebarItem icon={IconSettings} label="Тохиргоо" id="settings" active={activePage === 'settings'} />
+                        </nav>
+
+                        {/* Footer */}
+                        <div className="p-4 border-t border-blue-900">
+                            <button className="flex items-center space-x-2 text-blue-300 hover:text-white text-sm transition-colors w-full">
+                                <IconLogOut className="w-4 h-4" />
+                                <span>Гарах</span>
+                            </button>
+                        </div>
+                    </aside>
+
+                    {/* Main Content Wrapper */}
+                    <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                        
+                        {/* Top Header */}
+                        <header className="h-16 bg-white shadow-sm border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 z-20">
+                            <div className="flex items-center">
+                                <button onClick={() => setIsSidebarOpen(true)} className="p-2 rounded-md hover:bg-gray-100 text-gray-600 lg:hidden focus:outline-none">
+                                    <IconMenu className="w-6 h-6" />
+                                </button>
+                                <h2 className="text-gray-800 text-lg font-bold ml-2 lg:ml-0">
+                                    2025-2026 оны хичээлийн жил (Хавар)
+                                </h2>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <div className="hidden md:flex flex-col text-right mr-2">
+                                    <span className="text-xs text-gray-500 font-bold uppercase">{studentInfo.school}</span>
+                                    <span className="text-xs text-gray-400">{studentInfo.major}</span>
+                                </div>
+                                <div className="h-8 w-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs border border-blue-200">
+                                    ID
+                                </div>
+                            </div>
+                        </header>
+
+                        {/* Scrollable Content */}
+                        <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-[#f0f2f5]">
+                            
+                            {/* Breadcrumb / Title */}
+                            <div className="mb-6 flex justify-between items-end">
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-800">
+                                        {activePage === 'home' && 'Нүүр хуудас'}
+                                        {activePage === 'selection' && 'Хичээл сонголт'}
+                                        {activePage === 'schedule' && 'Хичээлийн хуваарь'}
+                                        {activePage === 'grades' && 'Дүнгийн мэдээлэл'}
+                                        {activePage === 'ref' && 'Тодорхойлолт захиалах'}
+                                        {activePage === 'payment' && 'Төлбөрийн мэдээлэл'}
+                                        {activePage === 'settings' && 'Хувийн тохиргоо'}
+                                    </h1>
+                                    <p className="text-sm text-gray-500 mt-1">Оюутан: {studentInfo.name} ({studentInfo.id})</p>
+                                </div>
+                                {activePage === 'selection' && (
+                                    <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex items-center space-x-3">
+                                        <span className="text-xs font-bold text-gray-400 uppercase">Сонгосон багц:</span>
+                                        <span className={`text-xl font-bold ${totalCredits > studentInfo.maxCredits ? 'text-red-600' : 'text-blue-900'}`}>{totalCredits}</span>
+                                        <span className="text-gray-400 text-sm">/ {studentInfo.maxCredits} кр</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* CONDITIONAL CONTENT */}
+                            {activePage === 'home' && renderHome()}
+                            {activePage === 'selection' && renderSelection()}
+                            {activePage === 'schedule' && renderSchedule()}
+                            {activePage === 'grades' && renderGrades()}
+                            {activePage === 'ref' && renderReferences()}
+                            {activePage === 'payment' && renderPayment()}
+                            {activePage === 'settings' && renderSettings()}
+
+                        </main>
+                    </div>
+
+                    {/* CONFIRM MODAL */}
+                    {showConfirmModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                            <div className="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden">
+                                <div className="bg-blue-900 px-6 py-4 flex items-center justify-between">
+                                    <h3 className="text-white font-bold text-lg">Баталгаажуулах</h3>
+                                    <button onClick={() => setShowConfirmModal(false)} className="text-blue-200 hover:text-white">
+                                        <span className="text-2xl">&times;</span>
+                                    </button>
+                                </div>
+                                <div className="p-6">
+                                    <div className="flex items-start space-x-4">
+                                        <div className="bg-yellow-100 p-3 rounded-full flex-shrink-0">
+                                            <IconBook className="w-6 h-6 text-yellow-600" />
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-700 font-medium mb-1">Та сонголтоо хадгалахдаа итгэлтэй байна уу?</p>
+                                            <p className="text-sm text-gray-500">Нийт {totalCredits} кредит сонгогдсон байна. Баталгаажуулсны дараа өөрчлөх боломжгүйг анхаарна уу.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3 border-t border-gray-100">
+                                    <button onClick={() => setShowConfirmModal(false)} className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50">
+                                        Болих
+                                    </button>
+                                    <button onClick={handleConfirm} className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-bold hover:bg-blue-700 shadow-sm">
+                                        Тийм, хадгалах
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* NOTIFICATION TOAST */}
+                    {notification && (
+                        <div className={`fixed bottom-6 right-6 px-6 py-3 rounded shadow-lg text-white text-sm font-medium z-50 flex items-center transform transition-all duration-300 ${notification.type === 'error' ? 'bg-red-600' : 'bg-green-600'}`}>
+                            {notification.message}
+                        </div>
+                    )}
+
                 </div>
             );
         };
 
-        // --- 3. MOUNTING TO DOM (Using React 17 Render) ---
-        ReactDOM.render(
-            <App />,
-            document.getElementById('root')
-        );
-
+        ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
 </html>
