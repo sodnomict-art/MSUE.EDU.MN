@@ -1,0 +1,269 @@
+import React, { useState, useEffect } from 'react';
+import { User, BookOpen, Calendar, Clock, CheckCircle, AlertCircle, GraduationCap, LogOut, X } from 'lucide-react';
+
+/**
+ * МУБИС-ийн Оюутны Вэб - Хичээл сонголтын систем
+ * Оюутан: Очирбат Болормаа
+ * Мэргэжил: Багш, Биеийн тамир
+ */
+
+const App = () => {
+  const studentInfo = {
+    name: "Очирбат Болормаа",
+    id: "E.2105892",
+    school: "Багшийн сургууль",
+    major: "Багш, Биеийн тамир",
+    year: 3,
+    gpa: 3.4,
+    maxCredits: 21
+  };
+
+  const allCourses = [
+    { id: 1, code: 'EDU203', name: 'Сурган хүмүүжүүлэх зүй', credits: 3, teacher: 'Док. Б.Ариунаа', time: 'Даваа 09:40 - 11:10', room: 'А-304', type: 'Заавал' },
+    { id: 2, code: 'PSY201', name: 'Хүүхдийн сэтгэл судлал', credits: 3, teacher: 'Маг. Г.Батболд', time: 'Мягмар 14:00 - 15:30', room: 'Б-201', type: 'Заавал' },
+    { id: 3, code: 'MTH305', name: 'Математик заах арга зүй', credits: 4, teacher: 'Док. С.Цэцэгээ', time: 'Лхагва 08:00 - 11:10', room: 'Лаб-1', type: 'Мэргэшүүлэх' },
+    { id: 4, code: 'ENG102', name: 'Академик Англи хэл II', credits: 3, teacher: 'Г.Smith', time: 'Пүрэв 11:20 - 12:50', room: 'Г-405', type: 'Сонгон' },
+    { id: 5, code: 'HIS101', name: 'Монголын түүх', credits: 2, teacher: 'Л.Дорж', time: 'Баасан 16:00 - 17:30', room: 'А-Lecture', type: 'Ерөнхий' },
+    { id: 6, code: 'PE201', name: 'Биеийн тамирын онол', credits: 3, teacher: 'Ж.Ганболд', time: 'Лхагва 14:00 - 15:30', room: 'Спортын заал', type: 'Мэргэшүүлэх' },
+    { id: 7, code: 'PE302', name: 'Хөнгөн атлетик', credits: 2, teacher: 'Д.Тэмүүлэн', time: 'Баасан 08:00 - 09:30', room: 'Стадион', type: 'Мэргэшүүлэх' },
+  ];
+
+  const [selectedCourses, setSelectedCourses] = useState([]);
+  const [totalCredits, setTotalCredits] = useState(0);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [notification, setNotification] = useState(null);
+  const [activeTab, setActiveTab] = useState('selection');
+
+  useEffect(() => {
+    const total = selectedCourses.reduce((sum, course) => sum + course.credits, 0);
+    setTotalCredits(total);
+  }, [selectedCourses]);
+
+  const toggleCourse = (course) => {
+    const isSelected = selectedCourses.find(c => c.id === course.id);
+
+    if (isSelected) {
+      setSelectedCourses(selectedCourses.filter(c => c.id !== course.id));
+    } else {
+      if (totalCredits + course.credits > studentInfo.maxCredits) {
+        showNotification('Кредит хэтэрсэн байна!', 'error');
+        return;
+      }
+      const conflict = selectedCourses.find(c => c.time === course.time);
+      if (conflict) {
+        showNotification(`Цагийн давхцал: ${conflict.name}`, 'error');
+        return;
+      }
+      setSelectedCourses([...selectedCourses, course]);
+    }
+  };
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleConfirm = () => {
+    setShowConfirmModal(false);
+    showNotification('Хичээл сонголт амжилттай хадгалагдлаа!', 'success');
+    setActiveTab('schedule');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
+      {/* Header */}
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 px-4">
+        <div className="max-w-7xl mx-auto h-20 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <img 
+              src="https://msue.edu.mn/images/news/c0928b01-68f2-4b5c-92a2-0bdfbbce91ab.png" 
+              alt="MSUE Logo" 
+              className="h-14 w-auto object-contain"
+            />
+            <div className="hidden sm:flex flex-col">
+              <span className="font-bold text-blue-900 text-lg leading-tight uppercase tracking-tight">Монгол Улсын Боловсролын Их Сургууль</span>
+              <span className="text-[10px] text-gray-500 font-medium tracking-widest">MONGOLIAN STATE UNIVERSITY OF EDUCATION</span>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="hidden md:block text-right">
+              <p className="text-sm font-bold text-gray-900">{studentInfo.name}</p>
+              <p className="text-xs text-blue-600 font-medium uppercase">{studentInfo.id}</p>
+            </div>
+            <div className="h-10 w-10 bg-blue-50 rounded-full flex items-center justify-center border border-blue-100">
+              <User className="h-5 w-5 text-blue-600" />
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Profile Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-blue-50 rounded-xl"><User className="h-6 w-6 text-blue-600" /></div>
+              <div><p className="text-[10px] text-gray-400 font-bold uppercase">Оюутан</p><p className="font-bold text-sm">{studentInfo.name}</p></div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-green-50 rounded-xl"><BookOpen className="h-6 w-6 text-green-600" /></div>
+              <div><p className="text-[10px] text-gray-400 font-bold uppercase">Мэргэжил</p><p className="font-bold text-sm">{studentInfo.major}</p></div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-orange-50 rounded-xl"><GraduationCap className="h-6 w-6 text-orange-600" /></div>
+              <div><p className="text-[10px] text-gray-400 font-bold uppercase">GPA</p><p className="font-bold text-sm">{studentInfo.gpa}</p></div>
+            </div>
+            <div className="flex items-center space-x-4 border-l pl-6 border-gray-100">
+              <div>
+                <p className="text-[10px] text-gray-400 font-bold uppercase">Сонгосон кредит</p>
+                <div className="flex items-baseline space-x-1">
+                  <span className={`text-3xl font-black ${totalCredits > studentInfo.maxCredits ? 'text-red-600' : 'text-blue-900'}`}>{totalCredits}</span>
+                  <span className="text-gray-400 font-bold text-sm">/ {studentInfo.maxCredits}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation Tabs */}
+        <div className="flex space-x-2 mb-8 bg-gray-200/50 p-1 rounded-xl w-fit">
+          <button 
+            onClick={() => setActiveTab('selection')} 
+            className={`py-2 px-6 rounded-lg font-bold text-sm transition-all ${activeTab === 'selection' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Хичээл сонголт
+          </button>
+          <button 
+            onClick={() => setActiveTab('schedule')} 
+            className={`py-2 px-6 rounded-lg font-bold text-sm transition-all ${activeTab === 'schedule' ? 'bg-white text-blue-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Миний хуваарь
+          </button>
+        </div>
+
+        {activeTab === 'selection' ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-100">
+                  <thead className="bg-gray-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    <tr>
+                      <th className="px-6 py-4 text-left">Хичээлийн нэр</th>
+                      <th className="px-6 py-4 text-left">Цаг & Танхим</th>
+                      <th className="px-6 py-4 text-left">Кр</th>
+                      <th className="px-6 py-4 text-right">Үйлдэл</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {allCourses.map((course) => {
+                      const isSelected = selectedCourses.find(c => c.id === course.id);
+                      return (
+                        <tr key={course.id} className={`${isSelected ? 'bg-blue-50/30' : ''}`}>
+                          <td className="px-6 py-4">
+                            <p className="text-[10px] font-black text-blue-600 uppercase mb-0.5">{course.code}</p>
+                            <p className="text-sm font-bold text-gray-900">{course.name}</p>
+                            <p className="text-xs text-gray-400">{course.teacher}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="text-xs text-gray-600 flex items-center mb-1"><Clock className="w-3 h-3 mr-1 opacity-40" /> {course.time}</p>
+                            <p className="text-xs text-gray-500">Танхим: {course.room}</p>
+                          </td>
+                          <td className="px-6 py-4 font-bold text-gray-700 text-sm">{course.credits}</td>
+                          <td className="px-6 py-4 text-right">
+                            <button 
+                              onClick={() => toggleCourse(course)} 
+                              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${isSelected ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-blue-900 text-white shadow-md shadow-blue-900/10 hover:bg-blue-800'}`}
+                            >
+                              {isSelected ? 'Хасах' : 'Сонгох'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sticky top-28">
+                <h3 className="font-black text-lg text-blue-900 mb-4">Сонгосон багц</h3>
+                {selectedCourses.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-10 italic">Хичээл сонгоогүй байна.</p>
+                ) : (
+                  <ul className="space-y-3 mb-8">
+                    {selectedCourses.map(course => (
+                      <li key={course.id} className="flex justify-between items-center text-sm border-b border-gray-50 pb-2 last:border-0">
+                        <span className="font-medium text-gray-700">{course.name}</span>
+                        <span className="font-black text-blue-600">{course.credits} кр</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="border-t pt-4 mb-6 flex justify-between items-end">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase">Нийт Кредит</span>
+                  <span className="text-3xl font-black text-blue-900">{totalCredits}</span>
+                </div>
+                <button 
+                  onClick={() => setShowConfirmModal(true)}
+                  disabled={selectedCourses.length === 0}
+                  className={`w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${selectedCourses.length === 0 ? 'bg-gray-100 text-gray-300' : 'bg-green-600 text-white shadow-lg shadow-green-600/20 hover:bg-green-700'}`}
+                >
+                  Батлах & Хадгалах
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <h2 className="text-xl font-black mb-8 flex items-center text-blue-900"><Calendar className="w-6 h-6 mr-3" /> Хичээлийн хуваарь</h2>
+            {selectedCourses.length === 0 ? (
+              <div className="text-center py-20 text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100 italic">Сонгосон хичээл байхгүй байна.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {selectedCourses.map(course => (
+                  <div key={course.id} className="border-2 border-gray-50 rounded-2xl p-6 hover:border-blue-100 transition-all">
+                    <span className="text-[10px] font-black text-white bg-blue-900 px-2 py-1 rounded-md mb-4 inline-block">{course.code}</span>
+                    <h3 className="font-black text-gray-900 text-base mb-4 leading-tight">{course.name}</h3>
+                    <div className="space-y-2">
+                      <p className="text-[11px] font-bold text-gray-500 flex items-center"><User className="w-3.5 h-3.5 mr-2 text-blue-500" /> {course.teacher}</p>
+                      <p className="text-[11px] font-bold text-gray-500 flex items-center"><Clock className="w-3.5 h-3.5 mr-2 text-blue-500" /> {course.time}</p>
+                      <p className="text-[11px] font-bold text-gray-500 flex items-center"><div className="w-3.5 h-3.5 mr-2 bg-blue-500 text-white flex items-center justify-center text-[8px] rounded-sm font-black">R</div> {course.room}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-blue-900/10 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-gray-50 text-center">
+            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="h-8 w-8 text-green-500" />
+            </div>
+            <h3 className="text-xl font-black mb-2 text-gray-900">Баталгаажуулах</h3>
+            <p className="text-gray-500 text-sm mb-8">Та нийт {totalCredits} кредитийн хичээл сонгохдоо итгэлтэй байна уу?</p>
+            <div className="space-y-3">
+              <button onClick={handleConfirm} className="w-full py-4 bg-blue-900 text-white font-black rounded-xl shadow-lg shadow-blue-900/10 hover:bg-blue-800 transition-all">ТИЙМ, БАТЛАХ</button>
+              <button onClick={() => setShowConfirmModal(false)} className="w-full py-2 text-gray-400 font-bold hover:text-gray-600">БОЛИХ</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {notification && (
+        <div className={`fixed bottom-8 right-8 px-8 py-4 rounded-2xl shadow-2xl text-white font-bold z-[110] flex items-center transform animate-in slide-in-from-bottom duration-300 ${notification.type === 'error' ? 'bg-red-500' : 'bg-blue-900'}`}>
+          {notification.type === 'error' ? <AlertCircle className="w-5 h-5 mr-3" /> : <CheckCircle className="w-5 h-5 mr-3" />}
+          {notification.message}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;
